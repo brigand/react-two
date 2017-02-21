@@ -1,6 +1,8 @@
 
 Two way binding in a react friendly way
 
+### status: incomplete
+
 ## Example
 
 react-two modifies your component, intercepts the render output. It adds and removes props
