@@ -15,10 +15,33 @@ class Myform extends React.Component {
   constructor() {
     super();
     this.state = {foo: 'initial value'};
-    two(this, {});
+    this.two = two(this, {});
   }
   render() {
     return <input $bind="state.foo" />;
+  }
+}
+```
+
+You can also bind to callbacks in props instead of state.
+
+```js
+import two from 'react-two';
+
+class Myform extends React.Component {
+  static propTypes = {
+    data: PropTypes.shape({foo: PropTypes.string}),
+    onData: PropTypes.func,
+  };
+  constructor() {
+    super();
+    this.state = {foo: 'initial value'};
+    this.two = two(this, {
+      callback: 'onData',
+    });
+  }
+  render() {
+    return <input $bind="props.data.foo" />;
   }
 }
 ```
