@@ -20,6 +20,7 @@ exports.readFromPath = (obj, path, fallback = omittedFallbackSentenial) => {
   return current;
 };
 
+// does an immutable update on a path
 exports.updateFromPath = (obj, path, value) => {
   const parts = Array.isArray(path) ? path : path.split('.');
   const root = exports.clone(obj);
@@ -27,6 +28,10 @@ exports.updateFromPath = (obj, path, value) => {
   parts.forEach((part, i) => {
     const isLast = i === parts.length - 1;
     if (!isLast) {
+      if (current[part] === undefined) {
+        const currentParts = parts.slice(0, i);
+        throw new ReferenceError(`react-two: encountered an undefined while processing bind path during an update. '${currentParts}' is undefined. Full path is '${path}'`);
+      }
       const copy = exports.clone(current[part]);
       current[part] = copy;
       current = copy;
@@ -37,6 +42,7 @@ exports.updateFromPath = (obj, path, value) => {
   return root;
 };
 
+// generic minimal clone utility
 exports.clone = (obj) => {
   if (obj === null || typeof obj !== 'object') return obj;
   if (Array.isArray(obj)) return obj.slice();

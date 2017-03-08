@@ -1,8 +1,13 @@
 const React = require('react');
+const {readFromPath, updateFromPath} = require('./pathUtils.js');
 const mapReactElementTree = require('./mapReactElementTree.js');
 
 // inst is a react component instance
 const reactTwo = (inst, opts) => {
+  // TODO: validate types
+  const types = opts.types | [];
+  const defaultType = {type: null, value: 'value', onChange: 'onChange'};
+
   if (typeof inst.render !== 'function' || typeof inst.setState !== 'function') {
     throw new TypeError(`react-two: expected first argument to be a react component instance.`);
   }
@@ -15,15 +20,26 @@ const reactTwo = (inst, opts) => {
   inst.render = () => {
     const root = originalRender.call(inst);
     if (root === undefined) {
-      throw new TypeError(`Expected instance.render to return a node but got "${originalRender}"`);
+      throw new TypeError(`react-two: Expected instance.render to return a node but got "${originalRender}"`);
     }
     return mapReactElementTree(root, (node) => {
       if (node.props.$bind) {
         const path = node.props.$bind;
         const newProps = {
           $bind: undefined,
-          value
+          $bindDefault: undefined,
         };
+        const pathValue = readFromPath(inst, path, node.props.$bindDefault);
+        if (node.type === 'input' && node.type == 'checkbox') {
+          newProps.checked = !!pathValue;
+        } else if (node.type === 'input') {
+          newProps.value = pathValue;
+        } else if (typeof node.type === 'function') {
+          const type = types.find(t => t.type === node.type) || defaultType;
+          newProps[type.value] = pathValue;
+        } else {
+          throw new TypeError(`react-two: encountered an unknown node of type '${type}' with a $bind prop.`);
+        }
         return React.cloneElement(node, newProps);
       }
       return node;

@@ -25,3 +25,5 @@ describe('updateFromPath', () => {
   });
 });
 
+// clone is implicitly tested by updateFromPath
+
